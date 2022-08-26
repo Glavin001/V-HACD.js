@@ -1,0 +1,55 @@
+{
+  "name": "v-hacd",
+  "version": "0.1.0",
+  "description": "Voxelized Hierarchical Convex Decomposition (V-HACD) for JavaScript/Web",
+  "main": "index.js",
+  "preconstruct": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ci": "preconstruct validate; manypkg check",
+    "postinstall": "preconstruct dev",
+    "build": "preconstruct build",
+    "dev": "preconstruct dev",
+    "watch": "preconstruct watch",
+    "demo": "cd demo && yarn dev",
+    "release": "yarn build && changeset publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Glavin001/V-HACD.js.git"
+  },
+  "keywords": [
+    "v-hacd",
+    "hacd"
+  ],
+  "author": "Glavin Wiechert <glavin.wiechert@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Glavin001/V-HACD.js/issues"
+  },
+  "homepage": "https://github.com/Glavin001/V-HACD.js#readme",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "demo"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@changesets/cli": "^2.22.0",
+    "@manypkg/cli": "^0.19.1",
+    "@preconstruct/cli": "^2.1.5",
+    "buffer": "^6.0.3",
+    "np": "^7.6.1",
+    "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "prettier": "2.7.1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "v-hacd",
+  "version": "0.1.0",
+  "description": "Voxelized Hierarchical Convex Decomposition (V-HACD) for JavaScript/Web",
+  "source": "src/index.ts",
+  "main": "dist/v-hacd.cjs.js",
+  "module": "dist/v-hacd.esm.js",
+  "types": "dist/v-hacd.cjs.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd",
+  "keywords": [
+    "v-hacd",
+    "hacd"
+  ],
+  "author": "Glavin Wiechert <glavin.wiechert@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Glavin001/V-HACD.js/issues"
+  },
+  "homepage": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd#readme"
+}
