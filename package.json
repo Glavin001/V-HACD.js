@@ -12,6 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "ci": "preconstruct validate; manypkg check",
     "postinstall": "preconstruct dev",
+    "prebuild": "docker-compose --version",
     "build": "preconstruct build",
     "dev": "preconstruct dev",
     "watch": "preconstruct watch",
