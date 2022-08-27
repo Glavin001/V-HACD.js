@@ -16,6 +16,7 @@
     "dev": "preconstruct dev",
     "watch": "preconstruct watch",
     "demo": "cd demo && yarn dev",
+    "build-demo": "yarn build && cd demo && yarn build",
     "release": "yarn build && changeset publish"
   },
   "repository": {
