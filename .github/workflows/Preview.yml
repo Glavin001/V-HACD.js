@@ -5,7 +5,7 @@ env:
 on:
   push:
     branches-ignore:
-      - main
+      - master
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
@@ -18,4 +18,11 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Optional 
+          #vercel-args: '--prod' # Optional
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}  # Required
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }} # Required 
+          # working-directory: ./
