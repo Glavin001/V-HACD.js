@@ -12,12 +12,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "ci": "preconstruct validate; manypkg check",
     "postinstall": "preconstruct dev",
-    "prebuild": "docker-compose --version",
+    "prebuild": "yarn build:lib",
+    "build:lib": "yarn --cwd packages/v-hacd build",
     "build": "preconstruct build",
     "dev": "preconstruct dev",
     "watch": "preconstruct watch",
     "demo": "cd demo && yarn dev",
-    "build-demo": "yarn build && cd demo && yarn build",
+    "build:demo-with-deps": "yarn build && yarn build:demo",
+    "build:demo": "cd demo && yarn build",
     "release": "yarn build && changeset publish"
   },
   "repository": {
