@@ -1,5 +1,8 @@
 {
     "recommendations": [
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "esbenp.prettier-vscode",
+        "twxs.cmake",
+        "ms-vscode.cpptools-extension-pack",
     ]
 }

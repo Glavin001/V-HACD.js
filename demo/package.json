@@ -9,8 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.25.3",
+    "@react-three/fiber": "^8.6.2",
+    "@react-three/rapier": "^0.6.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "three": "0.139.2",
+    "three-stdlib": "2.9.1",
     "v-hacd": "*"
   },
   "devDependencies": {

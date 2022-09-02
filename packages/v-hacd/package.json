@@ -11,10 +11,9 @@
   ],
   "scripts": {
     "test": "node -e \"import('./scripts/test.js')\"",
-    "build": "npm run build:lib && npm run types",
-    "build:lib": "yarn patch:lib && docker-compose up --build --exit-code-from lib lib",
-    "patch:lib": "cd src/lib/v-hacd && git apply ../patches/VHACD.patch || true",
-    "types": "cp ./src/ammo.d.ts ./builds/ammo.d.ts"
+    "build": "yarn patch:lib && yarn build:lib",
+    "build:lib": "cd lib/ && docker-compose up --build --exit-code-from lib lib",
+    "patch:lib": "cd lib/v-hacd && git apply ../patches/VHACD.patch || true"
   },
   "repository": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd",
   "keywords": [

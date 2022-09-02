@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src","builds"],
+  "include": ["src","lib/builds"],
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false
