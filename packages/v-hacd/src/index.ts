@@ -2,12 +2,12 @@
 // import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev-threads.wasm.cjs';
 // import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev-threads.wasm';
 // import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev.threads.wasm.esm';
-import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev.wasm.esm';
+// import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev.wasm.esm';
 
 // import { VHACD as VHACDModule } from './testing.cjs';
 // import VHACDModule from '../lib/builds/dist/vhacd.dev-threads.wasm';
 // const { VHACD: VHACDModule } = require('../lib/builds/dist/vhacd.dev-threads.wasm');
-console.log('VHACDModule', VHACDModule);
+// console.log('VHACDModule', VHACDModule);
 
 // const wasmPath = require.resolve('../builds/ammo.wasm.wasm')
 
@@ -67,13 +67,57 @@ export interface Options {
   mode?: MODE;
 }
 
-export interface ComputeOptions {
+export type Vertex = [x: number, y: number, z: number];
+export type ConvexHull = Vertex[];
+
+export interface ComputeParameters {
+  /**
+   * The maximum number of convex hulls to produce
+   * Default = 64
+   */
+  maxConvexHulls: number;
+  /**
+   * The voxel resolution to use
+   * Default = 400000
+   */
+  resolution: number;
+  /**
+   * if the voxels are within 1% of the volume of the hull, we consider this a close enough approximation
+   * Default = 1
+   */
+  minimumVolumePercentErrorAllowed: number;
+  /**
+   * The maximum recursion depth
+   * Default = 12
+   */
+  maxRecursionDepth: number;
+  /**
+   * The maximum number of vertices allowed in any output convex hull
+   * Default = 64
+   */
+  maxNumVerticesPerCH: number;
+  /**
+   * Once a voxel patch has an edge length of less than 4 on all 3 sides, we don't keep recursing
+   * Default = 2
+   */
+  minEdgeLength: number;
+  /**
+   * Whether or not to shrinkwrap the voxel positions to the source mesh on output
+   * true
+   */
+  shrinkWrap: boolean;
+  /**
+   * Whether or not to attempt to split planes along the best location. Experimental feature. False by default.
+   * Default = false
+   */
+  findBestPlane: boolean;
+}
+
+export interface ComputeOptions extends Partial<ComputeParameters> {
   vertices: any[];
   faces: any[];
 }
 
-export type Vertex = [x: number, y: number, z: number];
-export type ConvexHull = Vertex[];
 
 export interface ComputeResult {
   hulls: ConvexHull[];
@@ -94,6 +138,7 @@ export class VHACD {
   public async compute({
     vertices = [],
     faces = [],
+    ...params
   }: ComputeOptions): Promise<ComputeResult> {
     const Ammo = await this.modulePromise;
     const vhacd = await this.vhacdInstancePromise;
@@ -110,13 +155,24 @@ export class VHACD {
     const logging = new Ammo.Logging();
     parameters.m_callback = logging;
 
-    // parameters.m_maxConvexHulls = maxConvexHulls;
+    if (params.maxConvexHulls) {
+      parameters.set_m_maxConvexHulls(params.maxConvexHulls) //maxConvexHulls;
+    }
+    if (params.resolution) {
+      parameters.set_m_resolution(params.resolution); //10000000; //10000000;
+    }
+    if (params.minimumVolumePercentErrorAllowed) {
+      parameters.set_m_minimumVolumePercentErrorAllowed(params.minimumVolumePercentErrorAllowed); //0;//0.01;
+    }
+    if (params.maxRecursionDepth) {
+      parameters.set_m_maxRecursionDepth(params.maxRecursionDepth); //0;//0.01;
+    }
     // parameters.m_resolution = 100000; //10000000; //10000000;
     // parameters.m_minimumVolumePercentErrorAllowed = 1; //0;//0.01;
 
     // parameters.set_m_maxConvexHulls(maxConvexHulls);
-    parameters.set_m_resolution(100000); //10000000; //10000000;
-    parameters.set_m_minimumVolumePercentErrorAllowed(1); //0;//0.01;
+    // parameters.set_m_resolution(100000); //10000000; //10000000;
+    // parameters.set_m_minimumVolumePercentErrorAllowed(1); //0;//0.01;
 
     // parameters.m_logger = logging;
     // const res = a.Compute(vertices, vertices.length, faces, faces.length, parameters)
