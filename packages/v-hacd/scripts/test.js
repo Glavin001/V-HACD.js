@@ -3,7 +3,7 @@
 
 // const Ammo = await (await import('./ammo.js')).default()
 
-// const h = new Ammo.AmmoHelpers()
+// const h = new Ammo.VHACDHelpers()
 
 // const a = h.CreateVHACD_ASYNC()
 
@@ -35,7 +35,7 @@ import("../builds/ammo.js")
   const Ammo = await AmmoModule.default();
   console.log('Ammo', Ammo);
 
-  const h = new Ammo.AmmoHelpers();
+  const h = new Ammo.VHACDHelpers();
   console.log('helper', h);
 
   const vhacd = h.CreateVHACD_ASYNC();

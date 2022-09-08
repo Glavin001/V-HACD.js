@@ -1,5 +1,5 @@
-// This is ammo.js, a port of Bullet Physics to JavaScript. zlib licensed.
-console.log('Running Ammo.js');
+// This is a VHACD port to JavaScript.
+console.log('Running VHACD.js');
 if (!globalThis.__dirname) {
     globalThis.__dirname = "";
 }

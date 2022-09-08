@@ -14,7 +14,7 @@ export function Model({ src, ...props }: ModelProps) {
     //   console.log('mite obj', obj, collision)
     console.log('Model obj', obj);
     const simplerGeo = useMemo(() => {
-        const geo = obj.children[0].geometry;
+        const geo = (obj.children[0] as any)?.geometry;
         return mergeVertices(geo);
     }, [obj]);
 

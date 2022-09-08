@@ -5,9 +5,9 @@ Module['INTERNAL_TICK_CALLBACK_SIGNATURE'] = 'vif';
 
 // EM_ASM({ Module.wasmTable = wasmTable; });
 
-// Reassign global Ammo to the loaded module:
+// Reassign global VHACD to the loaded module:
 // console.log('Module:', Module);
-console.log('Ammo Module');
-if (typeof this !== 'undefined') {
-    // this['Ammo'] = Module;
+console.log('VHACD Module', Module, this);
+if (typeof this !== 'undefined' && !this['VHACD']) {
+    this['VHACD'] = Module;
 }

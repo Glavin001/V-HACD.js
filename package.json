@@ -17,7 +17,7 @@
     "build": "preconstruct build",
     "dev": "preconstruct dev",
     "watch": "preconstruct watch",
-    "watch:all": "concurrently \"yarn demo\" \"yarn watch\"",
+    "watch:all": "concurrently --kill-others --names demo,pkg --success all \"yarn demo\" \"yarn watch\"",
     "demo": "cd demo && yarn dev",
     "build:demo-with-deps": "yarn build && yarn build:demo",
     "build:demo": "cd demo && yarn build",

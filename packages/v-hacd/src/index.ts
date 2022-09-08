@@ -1,9 +1,67 @@
+// import * as VHACDPkg from '../lib/builds/dist/vhacd.dev-threads.wasm.js';
+// import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev-threads.wasm.cjs';
+// import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev-threads.wasm';
+// import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev.threads.wasm.esm';
+import { VHACD as VHACDModule } from '../lib/builds/dist/vhacd.dev.wasm.esm';
+
+// import { VHACD as VHACDModule } from './testing.cjs';
+// import VHACDModule from '../lib/builds/dist/vhacd.dev-threads.wasm';
+// const { VHACD: VHACDModule } = require('../lib/builds/dist/vhacd.dev-threads.wasm');
+console.log('VHACDModule', VHACDModule);
+
 // const wasmPath = require.resolve('../builds/ammo.wasm.wasm')
+
+// const libPathLookup = (process.env.NODE_ENV === 'production')
+// ? {
+//   wasm: new URL('../lib/builds/dist/vhacd.prod.wasm.wasm', import.meta.url).href,
+// }
+// : {
+//   wasm: new URL('../lib/builds/dist/vhacd.dev.wasm.wasm', import.meta.url).href,
+// };
+
+/*
+const libPathLookup = false //(process.env.NODE_ENV === 'production')
+  ? {
+    js: new URL('../lib/builds/dist/vhacd.prod.threads.esm.js', import.meta.url).href,
+    cjs: new URL('../lib/builds/dist/vhacd.prod.threads.js', import.meta.url).href,
+    wasmJs: new URL('../lib/builds/dist/vhacd.prod.threads.wasm.esm.js', import.meta.url).href,
+    wasmCjs: new URL('../lib/builds/dist/vhacd.dev.threads.wasm.js', import.meta.url).href,
+    wasmWasm: new URL('../lib/builds/dist/vhacd.prod.threads.wasm.wasm', import.meta.url).href,
+    wasmWorkerJs: new URL('../lib/builds/dist/vhacd.prod.threads.wasm.worker.js', import.meta.url).href,
+    workerJs: new URL('../lib/builds/dist/vhacd.prod-threads.worker.js', import.meta.url).href,
+  } as const
+  : { 
+    js: new URL('../lib/builds/dist/vhacd.dev.threads.esm.js', import.meta.url).href,
+    cjs: new URL('../lib/builds/dist/vhacd.dev.threads.js', import.meta.url).href,
+    wasmJs: new URL('../lib/builds/dist/vhacd.dev.threads.wasm.esm.js', import.meta.url).href,
+    // wasmCjs: new URL('../lib/builds/dist/vhacd.dev-threads.wasm.cjs.js', import.meta.url).href,
+    wasmCjs: new URL('../lib/builds/dist/vhacd.dev.threads.wasm.js', import.meta.url).href,
+    wasmWasm: new URL('../lib/builds/dist/vhacd.dev.threads.wasm.wasm', import.meta.url).href,
+    wasmWorkerJs: new URL('../lib/builds/dist/vhacd.dev.threads.wasm.worker.js', import.meta.url).href,
+    workerJs: new URL('../lib/builds/dist/vhacd.dev.threads.worker.js', import.meta.url).href,
+  } as const;
+*/
+
+const libPathLookup = { 
+  js: new URL('../lib/builds/dist/vhacd.dev.esm.js', import.meta.url).href,
+  cjs: new URL('../lib/builds/dist/vhacd.dev.js', import.meta.url).href,
+  wasmJs: new URL('../lib/builds/dist/vhacd.dev.wasm.esm.js', import.meta.url).href,
+  wasmCjs: new URL('../lib/builds/dist/vhacd.dev.wasm.js', import.meta.url).href,
+  wasmWasm: new URL('../lib/builds/dist/vhacd.dev.wasm.wasm', import.meta.url).href,
+  wasmWorkerJs: new URL('../lib/builds/dist/vhacd.dev.wasm.worker.js', import.meta.url).href,
+  workerJs: new URL('../lib/builds/dist/vhacd.dev.worker.js', import.meta.url).href,
+} as const;
+
+// const wasmPath = (process.env.NODE_ENV === 'production')
+//   ? new URL('../lib/builds/dist/vhacd.prod.wasm.wasm', import.meta.url).href
+//   : new URL('../lib/builds/dist/vhacd.dev.wasm.wasm', import.meta.url).href
+//   ;
 // console.log('wasmPath', wasmPath);
 
-const MODE: string = "WASM"; //'JS'
+console.log('libPathLookup', libPathLookup);
 
 type MODE = "WASM" | "JS";
+// const MODE: MODE = "WASM"; //'JS'
 
 export interface Options {
   mode?: MODE;
@@ -13,7 +71,6 @@ export interface ComputeOptions {
   vertices: any[];
   faces: any[];
 }
-
 
 export type Vertex = [x: number, y: number, z: number];
 export type ConvexHull = Vertex[];
@@ -132,7 +189,7 @@ export class VHACD {
 
   private createInstance() {
     return this.modulePromise.then(async (Ammo) => {
-      const h = new Ammo.AmmoHelpers();
+      const h = new Ammo.VHACDHelpers();
       console.log("helper", h);
 
       // const vhacd = h.CreateVHACD_ASYNC();
@@ -214,18 +271,98 @@ export class VHACD {
 }
 
 async function loadModule(options: Options = {}) {
-  const modulePromise =
-    MODE === "WASM"
-      ? import("../lib/builds/ammo.wasm.js")
-      : import("../lib/builds/ammo.js");
+  const { mode = 'WASM' } = options;
+  // const modulePromise =
+  //   MODE === "WASM"
+  //     ? (
+  //       (process.env.NODE_ENV === 'production')
+  //       ? import("../lib/builds/dist/vhacd.prod.wasm.js")
+  //       : import("../lib/builds/dist/vhacd.dev.wasm.js")
+  //     )
+  //     : (
+  //       (process.env.NODE_ENV === 'production')
+  //       ? import("../lib/builds/dist/vhacd.prod.js")
+  //       : import("../lib/builds/dist/vhacd.dev.js")
+  //     );
+  // const modulePromise =
+  //   MODE === "WASM"
+  //     ? (
+  //       (process.env.NODE_ENV === 'production')
+  //       ? import("../lib/builds/dist/vhacd.prod-threads.wasm.js")
+  //       : import("../lib/builds/dist/vhacd.dev-threads.wasm.js")
+  //     )
+  //     : (
+  //       (process.env.NODE_ENV === 'production')
+  //       ? import("../lib/builds/dist/vhacd.prod-threads.js")
+  //       : import("../lib/builds/dist/vhacd.dev-threads.js")
+  //     );
+
+  // const modulePromise = import(libPathLookup.js);
+
+  // const modulePromise = import('../lib/builds/dist/vhacd.dev-threads.wasm.js');
+  // const modulePromise = import('../lib/builds/dist/vhacd.dev.threads.wasm.esm.js');
+
+  // const modulePromise = import(
+  //   MODE === 'WASM'
+  //   ? libPathLookup.wasmJs
+  //   : libPathLookup.js
+  // );
+
+  // const modulePromise = mode === 'WASM'
+  //   ? import('../lib/builds/dist/vhacd.dev.threads.wasm.esm.js')
+  //   : import('../lib/builds/dist/vhacd.dev.threads.esm.js')
+  //   ;
+  const modulePromise = mode === 'WASM'
+    ? import('../lib/builds/dist/vhacd.dev.wasm.esm.js')
+    : import('../lib/builds/dist/vhacd.dev.esm.js')
+    ;
+
+  /*
+  const libBlobLookup = Object.fromEntries(await Promise.all(
+    Array.from(Object.entries(libPathLookup))
+      .map(async ([key, val]) => {
+        const blob = await fetch(val).then(res => res.blob());
+        return Promise.resolve([key, blob]);
+      })
+  ));
+  console.log('libBlogLookup', libBlobLookup);
+  */
 
   return modulePromise.then(async (AmmoModule) => {
     // console.log("AmmoModule", AmmoModule, AmmoModule.default);
     const Ammo = await AmmoModule.default({
-      INITIAL_MEMORY: MODE === "JS" ? 5242880 * 2 : undefined,
-      mainScriptUrlOrBlob: "/vhacd/ammo.js",
+      // INITIAL_MEMORY: MODE === "JS" ? 5242880 * 2 : undefined,
+      // INITIAL_MEMORY: 5242880 * 2,
+      // INITIAL_MEMORY: 10 * 1024 * 1024,
+      // WebAssembly.instantiate(): 
+      // memory import 25 is smaller than initial 32768, got 160
+      INITIAL_MEMORY: mode === 'JS' ? 100 * 1024 * 1024 : undefined,
+      // INITIAL_MEMORY: 25 * 1024 * 1024,
+      // memory import 25 is smaller than initial 32768, got 1600)
+      // TOTAL_MEMORY: 300 * 1024 * 1024,
+      // mainScriptUrlOrBlob: "/vhacd/ammo.js",
+      // mainScriptUrlOrBlob: libPathLookup.js,
+      // mainScriptUrlOrBlob: libPathLookup.wasmJs,
+      // mainScriptUrlOrBlob: libPathLookup.wasmCjs,
+      mainScriptUrlOrBlob: mode === 'WASM' ? libPathLookup.wasmCjs : libPathLookup.cjs,
+      // mainScriptUrlOrBlob: mode === 'WASM' ? libBlobLookup.wasmCjs : libBlobLookup.cjs,
+      __emscripten_thread_crashed: (error: Error) => {
+        console.error("__emscripten_thread_crashed", error);
+      },
       locateFile: function (s: string) {
         console.log("locateFile", s);
+        if (s.endsWith('.wasm.wasm')) {
+          // return wasmPath;
+          return libPathLookup.wasmWasm;
+          // return libBlobLookup.wasmWasm;
+        } else if (s.endsWith('.wasm.worker.js')) {
+          return libPathLookup.wasmWorkerJs;
+          // return libBlobLookup.wasmWorkerJs;
+        } else if (s.endsWith('.worker.js')) {
+          return libPathLookup.workerJs;
+          // return libBlobLookup.workerJs;
+        }
+        console.warn("Unknown file", s);
         return "vhacd/" + s;
       },
     });
@@ -238,7 +375,7 @@ async function loadModule(options: Options = {}) {
 export function main(options: Options = {}) {
   return loadModule(options)
   .then(async (Ammo) => {
-    const h = new Ammo.AmmoHelpers();
+    const h = new Ammo.VHACDHelpers();
     console.log("helper", h);
 
     // const vhacd = h.CreateVHACD_ASYNC();

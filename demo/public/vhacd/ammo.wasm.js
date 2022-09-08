@@ -1,1 +1,0 @@
-../../../packages/v-hacd/lib/builds/ammo.wasm.js

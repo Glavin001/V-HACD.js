@@ -2,7 +2,7 @@
 # mkdir -p builds/
 # rm -rf builds/* builds-em/*
 
-PROJECT=ammo
+PROJECT=vhacd
 
 # rm -f builds/${PROJECT}.*
 

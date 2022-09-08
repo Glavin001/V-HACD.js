@@ -1,5 +1,6 @@
 #define ENABLE_VHACD_IMPLEMENTATION 1
 #define VHACD_DISABLE_THREADING 1
+// ^ TODO: disable with CMake
 
 #include "v-hacd/include/VHACD.h"
 
@@ -18,11 +19,11 @@
 //     };
 // };
 
-class AmmoHelpers;
+class VHACDHelpers;
 
-class AmmoHelpers {
+class VHACDHelpers {
     public:
-        AmmoHelpers(void) {
+        VHACDHelpers(void) {
         }
         VHACD::IVHACD* CreateVHACD(void) {
             return VHACD::CreateVHACD();

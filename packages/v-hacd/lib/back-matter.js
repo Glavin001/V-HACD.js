@@ -1,2 +1,1 @@
-export default Ammo;
-console.log('Exporting Ammo.js');
+console.log('Exporting VHACD');

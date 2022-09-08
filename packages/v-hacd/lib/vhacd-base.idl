@@ -97,8 +97,8 @@ interface IUserLogger {
 };
 
 // [Prefix="VHACD::IVHACD::"]
-interface AmmoHelpers {
-  void AmmoHelpers();
+interface VHACDHelpers {
+  void VHACDHelpers();
   [Const] IVHACD CreateVHACD();
   // [Const] IVHACD CreateVHACD_ASYNC();
 };
