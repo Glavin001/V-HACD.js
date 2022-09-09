@@ -7,34 +7,45 @@ import { Physics, RigidBody, Debug } from "@react-three/rapier";
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { button, useControls } from 'leva'
-import { ConvexGeometry, mergeVertices } from 'three-stdlib';
+import { ConvexGeometry, mergeVertices, OBJExporter } from 'three-stdlib';
+import { MarketModels as marketModels } from './market-models';
 
 import './App.css'
 // import reactLogo from './assets/react.svg'
 import { Model } from './Model'
 
 export function VHACDPreview() {
+  const modelRef = useRef();
   const [hulls, setHulls] = useState<ComputeResult | null>(null);
+  const marketModelOptions = useMarketModels();
+  console.log('marketModelOptions', marketModelOptions);
 
-  const { model, debug, mode } = useControls({
+  useControls({
     Compute: button(async (get) => {
       try {
         const vhacd = new VHACD({
           mode: mode as any,
         });
         const model = get('model');
+
+        console.log('modelRef', model, modelRef);
+
         const params = {
           maxConvexHulls: get('maxConvexHulls'),
           resolution: get('resolution'),
           maxRecursionDepth: get('maxRecursionDepth'),
           minimumVolumePercentErrorAllowed: get('minimumVolumePercentErrorAllowed'),
         };
-        const contents = await fetch(model).then(res => res.text());
-        console.log('model', { model, contents });
-        // const { vertices, faces } = objToGeometry(cubeContents)
-        // const { vertices, faces } = objToGeometry(miteContents)
-        const { vertices, faces } = objToGeometry(contents)
+
+        // const contents = await fetch(model).then(res => res.text());
+        // console.log('model', { model, contents });
+        // // const { vertices, faces } = objToGeometry(cubeContents)
+        // // const { vertices, faces } = objToGeometry(miteContents)
+        // const { vertices, faces } = objToGeometry(contents)
         // const { vertices, faces } = getVerticesAndFaces(obj);
+
+        const { vertices, faces } = getVerticesAndFaces(modelRef.current);
+
         console.log('model', { vertices, faces, params });
         const res = await vhacd.compute({ vertices, faces, ...params });
         console.log("Result:", res);
@@ -44,10 +55,21 @@ export function VHACDPreview() {
         alert(error.toString()); 
       }
     }),
-    debug: {
-      value: false,
+  });
+
+  const { showOriginal, showHulls } = useControls({
+    showOriginal: {
+      title: 'Show Original',
+      value: true,
     },
+    showHulls: {
+      title: 'Show Hulls',
+      value: true,
+    },
+  });
+  const { model } = useControls({
     model: {
+      title: 'Model',
       // value: '/models/cube.obj',
       // value: '/models/mite.obj',
       value: '/meshes/mite.obj',
@@ -86,8 +108,11 @@ export function VHACDPreview() {
         'Torus 1': '/meshes/torus1.obj',
         'Torus 2': '/meshes/torus2.obj',
         'Wall': '/meshes/wall.obj',
+        ...marketModelOptions,
       },
     },
+  });
+  const { mode } = useControls({
     mode: {
       value: 'WASM',
       options: ['WASM', 'JS'],
@@ -129,13 +154,15 @@ export function VHACDPreview() {
             <Model src={model} />
         </RigidBody> */}
 
-        {!(debug && hulls && hulls.hulls.length > 0) && (
+        {
           <group
-          // position={[2, 0, 0]}
+            // position={[2, 0, 0]}
+            // ref={modelRef}
+            visible={showOriginal || !(hulls && hulls.hulls.length > 0)}
           >
-            <Model src={model} />
+            <Model key={model} src={model} modelRef={modelRef} />
           </group>
-        )}
+        }
 
         {/* <RigidModel src="/models/umbrella.obj" position={[1, 3, 0]} /> */}
 
@@ -155,9 +182,14 @@ export function VHACDPreview() {
 
         <group
           // position={[-2, 0, 0]}
+          visible={showHulls}
         >
           {hulls?.hulls && (
-            <Hulls hulls={hulls.hulls} opacity={debug ? 1 : 0.8} />
+            <Hulls
+              hulls={hulls.hulls}
+              opacity={showOriginal ? 0.8 : 1}
+              // opacity={debug ? 1 : 0.8}
+            />
           )}
           {hulls?.timing && (
             <BBAnchor anchor={[1, -1, -1]}>
@@ -171,6 +203,7 @@ export function VHACDPreview() {
   )
 }
 
+/*
 const RigidModel = ({ src, ...props }: any) => {
   return (
     <RigidBody
@@ -181,6 +214,7 @@ const RigidModel = ({ src, ...props }: any) => {
     </RigidBody>
   );
 }
+*/
 
 function Hulls({ hulls = [], opacity = 1 }: { hulls: ConvexHull[]; opacity?: number; }) {
   // console.log('gearCollisionPoints', gearCollisionPoints)
@@ -349,19 +383,23 @@ function Hulls({ hulls = [], opacity = 1 }: { hulls: ConvexHull[]; opacity?: num
   )
 }
 
-function objToGeometry(contents: string) {
-  // const rows = contents
-  //   .split("\n")
-  //   .filter(Boolean)
-  //   .map((line) => line.split(" "));
-  // const vertices = rows
-  //   .filter((row) => row[0] === "v")
-  //   .map((row) => row.slice(1).map(parseFloat));
-  // const faces = rows
-  //   .filter((row) => row[0] === "f")
-  //   .map((row) => row.slice(1))
-  //   .map((row) => row.map((cell) => parseInt(cell.split("/")[0]) - 1));
+function getVerticesAndFaces(object: any) {
+  const exporter = new OBJExporter();
+  const contents = exporter.parse(object);
+  // console.log('contents', contents);
 
+  const { vertices, faces } = objToGeometry(contents);
+  // console.log(contents);
+  console.log(vertices.length, faces.length);
+  // console.log('useVerticesAndFaces', { vertices, faces });
+
+  return {
+    vertices,
+    faces,
+  };
+}
+
+function objToGeometry(contents: string) {
   const rows = contents
     .split("\n")
     .filter(Boolean)
@@ -373,11 +411,35 @@ function objToGeometry(contents: string) {
     .filter((row) => row[0] === "f")
     .map((row) => row.slice(1))
     .map((row) => row.map((cell) => parseInt(cell.split("/")[0], 10) - 1));
-
   return {
     vertices,
     faces,
   }
+}
+
+// const MARKET_MODELS_API = 'https://market.pmnd.rs/api/models';
+function useMarketModels() {
+  // const [marketModels, setMarketModels] = useState(() => []);
+  // // console.log('MarketModels', MarketModels);
+  // useEffect(() => {
+  //   fetch(MARKET_MODELS_API)
+  //     .then(res => res.json())
+  //     .then(res => setMarketModels(res))
+  //     ;
+  // }, []);
+  return useMemo(() => {
+    const names = marketModels.map(({ name }) => name).sort();
+    const ModelOptions = names.reduce((f, name) => {
+      const c = marketModels.find(({ name: n }) => n === name);
+      if (!c) {
+        return f;
+      }
+      // f[name] = c.id;
+      f[name] = c.file;
+      return f;
+    }, {} as Record<string, string>);
+    return ModelOptions;
+  }, [marketModels]);
 }
 
 // function getVerticesAndFaces(obj: any) {

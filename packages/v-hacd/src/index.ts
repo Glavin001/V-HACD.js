@@ -42,7 +42,7 @@ const libPathLookup = false //(process.env.NODE_ENV === 'production')
   } as const;
 */
 
-const libPathLookup = { 
+const libPathLookup = {
   js: new URL('../lib/builds/dist/vhacd.dev.esm.js', import.meta.url).href,
   cjs: new URL('../lib/builds/dist/vhacd.dev.js', import.meta.url).href,
   wasmJs: new URL('../lib/builds/dist/vhacd.dev.wasm.esm.js', import.meta.url).href,
