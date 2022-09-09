@@ -14,15 +14,58 @@ import './App.css'
 // import reactLogo from './assets/react.svg'
 import { Model } from './Model'
 
+const testModels = {
+  // 'Cube': '/models/cube.obj',
+  // 'Mite': '/models/mite.obj',
+  // 'Umbrella': '/models/umbrella.obj',
+  // 'Joy Stick': '/models/joy-stick.obj',
+  'Al': '/meshes/al.obj',
+  'Beshon': '/meshes/beshon.obj',
+  'Blonde': '/meshes/blonde.obj',
+  'Box Thick': '/meshes/box-thick.obj',
+  'Bunny': '/meshes/bunny.obj',
+  'Caterpillar': '/meshes/caterpillar.obj',
+  'Character': '/meshes/character.obj',
+  'Cow No Normals': '/meshes/cow-nonormals.obj',
+  'Cube': '/meshes/cube.obj',
+  'Cylinder': '/meshes/cylinder.obj',
+  'Deer Bound': '/meshes/deer_bound.obj',
+  'Defsphere': '/meshes/defsphere.obj',
+  'Hornbug': '/meshes/hornbug.obj',
+  'Hose': '/meshes/hose.obj',
+  'Lamp': '/meshes/lamp.obj',
+  'Mite': '/meshes/mite.obj',
+  'Chair Gorthic': '/meshes/ob_chair_gothic.obj',
+  'Chair Wood': '/meshes/ob_chair_wood.obj',
+  'Chess Table': '/meshes/ob_chess_table.obj',
+  'Sphere': '/meshes/sphere.obj',
+  'Spider': '/meshes/spider.obj',
+  'Teapot': '/meshes/teapot.obj',
+  'Teddy': '/meshes/teddy.obj',
+  'Torus 1': '/meshes/torus1.obj',
+  'Torus 2': '/meshes/torus2.obj',
+  'Wall': '/meshes/wall.obj',
+} as const;
+
 export function VHACDPreview() {
   const modelRef = useRef();
   const [hulls, setHulls] = useState<ComputeResult | null>(null);
+  const [status, setStatus] = useState<'idle' | 'computing'>('idle')
   const marketModelOptions = useMarketModels();
   console.log('marketModelOptions', marketModelOptions);
+  const modelOptions: Record<string, string> = useMemo(() => {
+    return {
+      ...mapKeys(testModels, (k) => `${k} (V-HACD Tests)`),
+      ...mapKeys(marketModelOptions, (k) => `${k} (market.pmnd.rs)`),
+    }
+  }, [marketModelOptions, testModels])
+
+  const hasHulls = !!(hulls && hulls.hulls.length > 0);
 
   useControls({
     Compute: button(async (get) => {
       try {
+        setStatus('computing');
         const vhacd = new VHACD({
           mode: mode as any,
         });
@@ -50,7 +93,9 @@ export function VHACDPreview() {
         const res = await vhacd.compute({ vertices, faces, ...params });
         console.log("Result:", res);
         setHulls(res);
+        setStatus('idle')
       } catch (error: any) {
+        setStatus('idle');
         console.error(error);
         alert(error.toString()); 
       }
@@ -59,92 +104,78 @@ export function VHACDPreview() {
 
   const { showOriginal, showHulls } = useControls({
     showOriginal: {
-      title: 'Show Original',
+      label: 'Show Original',
       value: true,
     },
     showHulls: {
-      title: 'Show Hulls',
+      label: 'Show Hulls',
       value: true,
     },
   });
   const { model } = useControls({
     model: {
-      title: 'Model',
+      label: 'Model',
       // value: '/models/cube.obj',
       // value: '/models/mite.obj',
-      value: '/meshes/mite.obj',
+      // value: '/meshes/mite.obj',
+      // value: testModels.Teapot,
+      value: testModels.Mite,
       // onChange: () => {
       //   setHulls(null);
       // },
-      options: {
-        // 'Cube': '/models/cube.obj',
-        // 'Mite': '/models/mite.obj',
-        // 'Umbrella': '/models/umbrella.obj',
-        // 'Joy Stick': '/models/joy-stick.obj',
-
-        'Al': '/meshes/al.obj',
-        'Beshon': '/meshes/beshon.obj',
-        'Blonde': '/meshes/blonde.obj',
-        'Box Thick': '/meshes/box-thick.obj',
-        'Bunny': '/meshes/bunny.obj',
-        'Caterpillar': '/meshes/caterpillar.obj',
-        'Character': '/meshes/character.obj',
-        'Cow No Normals': '/meshes/cow-nonormals.obj',
-        'Cube': '/meshes/cube.obj',
-        'Cylinder': '/meshes/cylinder.obj',
-        'Deer Bound': '/meshes/deer_bound.obj',
-        'Defsphere': '/meshes/defsphere.obj',
-        'Hornbug': '/meshes/hornbug.obj',
-        'Hose': '/meshes/hose.obj',
-        'Lamp': '/meshes/lamp.obj',
-        'Mite': '/meshes/mite.obj',
-        'Chair Gorthic': '/meshes/ob_chair_gothic.obj',
-        'Chair Wood': '/meshes/ob_chair_wood.obj',
-        'Chess Table': '/meshes/ob_chess_table.obj',
-        'Sphere': '/meshes/sphere.obj',
-        'Spider': '/meshes/spider.obj',
-        'Teapot': '/meshes/teapot.obj',
-        'Teddy': '/meshes/teddy.obj',
-        'Torus 1': '/meshes/torus1.obj',
-        'Torus 2': '/meshes/torus2.obj',
-        'Wall': '/meshes/wall.obj',
-        ...marketModelOptions,
-      },
+      options: modelOptions,
     },
   });
   const { mode } = useControls({
     mode: {
+      label: 'Mode',
       value: 'WASM',
       options: ['WASM', 'JS'],
     },
     maxConvexHulls: {
+      label: 'Max # Hulls',
       value: 64,
       step: 1,
       min: 1,
     },
     resolution: {
+      label: 'Resolution',
       value: 400000,
       step: 1,
       min: 1,
     },
     maxRecursionDepth: {
+      label: 'Max Recursion Depth',
       value: 12,
       step: 1,
       min: 1,
     },
     minimumVolumePercentErrorAllowed: {
+      label: 'Minimum Volume Percent Error Allowed',
       value: 1,
       step: 0.001,
       min: 0.001,
     },
   })
 
+  useControls(() => ({
+    'Copy JSON of convex hulls': button(() => {
+      const contents = JSON.stringify(hulls?.hulls, null, 2)
+      navigator.clipboard.writeText(contents)
+        .catch(console.error);
+    }, {
+      disabled: !hasHulls,
+    })
+  }), [hasHulls, hulls])
+
   useEffect(() => {
     setHulls(null);
   }, [model]);
 
+  const isComputing = status === 'computing';
+
   return (
-    <>
+    <group>
         {/* <RigidBody key={model}
             colliders={"hull"}
             position={[0, 0, 0]}
@@ -158,9 +189,23 @@ export function VHACDPreview() {
           <group
             // position={[2, 0, 0]}
             // ref={modelRef}
-            visible={showOriginal || !(hulls && hulls.hulls.length > 0)}
+            visible={showOriginal || !hasHulls}
           >
             <Model key={model} src={model} modelRef={modelRef} />
+            <BBAnchor anchor={[0, 5, -5]}>
+              <Text color="red" anchorX="center" anchorY="middle" fontSize={1}>
+                {hulls?.timing.total ? (
+                    `Done in ${(hulls.timing.total / 1000).toFixed(2)} seconds`
+                ) : (isComputing
+                  ? (
+                    "Computing..."
+                  )
+                  : (
+                    "Click the Compute button -->"
+                  )
+                )}
+              </Text>
+            </BBAnchor>
           </group>
         }
 
@@ -182,8 +227,10 @@ export function VHACDPreview() {
 
         <group
           // position={[-2, 0, 0]}
-          visible={showHulls}
         >
+          <group
+            visible={showHulls}
+          >
           {hulls?.hulls && (
             <Hulls
               hulls={hulls.hulls}
@@ -191,15 +238,9 @@ export function VHACDPreview() {
               // opacity={debug ? 1 : 0.8}
             />
           )}
-          {hulls?.timing && (
-            <BBAnchor anchor={[1, -1, -1]}>
-                <Text color="red" anchorX="center" anchorY="middle" fontSize={1}>
-                  {(hulls.timing.total / 1000).toFixed(4)} seconds
-                </Text>
-            </BBAnchor>
-          )}
+          </group>
         </group>
-    </>
+    </group>
   )
 }
 
@@ -440,6 +481,15 @@ function useMarketModels() {
     }, {} as Record<string, string>);
     return ModelOptions;
   }, [marketModels]);
+}
+
+function mapKeys<T extends object>(obj: T, cb: (k: string, v: any) => string): T {
+  return Object.fromEntries(
+    Array.from(Object.entries(obj))
+      .map(([key, val]) => (
+        [cb(key, val), val]
+      ))
+  ) as any as T
 }
 
 // function getVerticesAndFaces(obj: any) {

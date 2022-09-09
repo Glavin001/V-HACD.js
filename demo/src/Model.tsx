@@ -48,26 +48,26 @@ export function Model({ src, modelRef, ...props }: ModelProps) {
                 // controls={controlsRef}
             >
             {/* <Center {...{} as any}> */}
-                {/* <Clone
-                    receiveShadow
-                    castShadow
-                    // object={obj.children ? obj.children : obj}
-                    object={obj}
-                    dispose={null}
-                    inject={material}
-                    // inject={() => (
-                    //     <meshNormalMaterial />
-                    //     // props.children
-                    // )}
-                /> */}
-                {/* <mesh
-                    key={src}
-                    // geometry={obj?.geometry}
-                    geometry={simplerGeo}
-                >
-                    <meshStandardMaterial color="#ff0000" />
-                </mesh> */}
                 <group ref={modelRef}>
+                    {/* <Clone
+                        // receiveShadow
+                        // castShadow
+                        // object={obj.children ? obj.children : obj}
+                        object={obj}
+                        dispose={null}
+                        inject={material}
+                        // inject={() => (
+                        //     <meshNormalMaterial />
+                        //     // props.children
+                        // )}
+                    /> */}
+                    {/* <mesh
+                        key={src}
+                        // geometry={obj?.geometry}
+                        geometry={simplerGeo}
+                    >
+                        <meshStandardMaterial color="#ff0000" />
+                    </mesh> */}
                     <primitive object={obj} />
                 </group>
             {/* </Center> */}
