@@ -2318,6 +2318,11 @@ breakword@^1.0.5:
   dependencies:
     wcwidth "^1.0.1"
 
+browser-fs-access@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/browser-fs-access/-/browser-fs-access-0.31.1.tgz#87599f1c515018990eefd9b0193997e2fc6d09e7"
+  integrity sha512-jMz9f56DkLM7LyA8wZYO7CtpoF3RdUk1/FXrnRNybgV0R5eqk/fgFWR0k5IMjPYgK4jmZecytP/UDO5WBi9Dhg==
+
 browser-process-hrtime@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/browser-process-hrtime/-/browser-process-hrtime-1.0.0.tgz#3c9b4b7d782c8121e56f10106d84c0d0ffc94626"

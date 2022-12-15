@@ -12,6 +12,7 @@
     "@react-three/drei": "^9.25.3",
     "@react-three/fiber": "^8.6.2",
     "@react-three/rapier": "^0.6.6",
+    "browser-fs-access": "^0.31.1",
     "leva": "^0.9.31",
     "quickhull3d": "^2.1.0",
     "react": "^18.2.0",

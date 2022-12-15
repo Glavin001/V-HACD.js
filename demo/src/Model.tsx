@@ -13,13 +13,19 @@ export function Model({ src, modelRef, ...props }: ModelProps) {
 
     //   const obj = useLoader(OBJLoader, '/models/mite/mite.obj')
     //   const collision = useLoader(OBJLoader, '/models/mite/decomp-8.obj')
-    // console.log('Model obj', src, obj, props);
+    // console.log('Model obj', src, props);
 
     let obj: any;
     let material: any;
-    if (src.endsWith(".gltf")) {
-      const gltf = useGLTF(src);
+    let mesh: any;
+
+    const ext = src.split('.').pop();
+    // Remove the extension, .glb
+    const cleanSrc = src.startsWith('blob:') ? src.split('.').slice(0, -1).join('.') : src;
+    if (ext === 'gltf' || ext === 'glb') {
+      const gltf = useGLTF(cleanSrc);
       obj = gltf.scene;
+      mesh = (<primitive object={obj} />);
     // } else if (src.endsWith(".spline")) {
     //   const spline = useSpline(src);
     //   // obj = spline.nodes.Big;
@@ -28,8 +34,26 @@ export function Model({ src, modelRef, ...props }: ModelProps) {
     //   src = `${src}-${nodeName}`;
     //   console.log('Spline', spline, obj);
     } else {
-      obj = useLoader(OBJLoader, src)
+      obj = useLoader(OBJLoader, cleanSrc)
       material = () => <meshNormalMaterial />
+    //   const geo = (obj.children[0] as any)?.geometry;
+    //   mesh = (
+    //     <mesh
+    //     geometry={geo}
+    //         // geometry={obj?.geometry}
+    //         // geometry={simplerGeo}
+    //     >
+    //         <meshNormalMaterial />
+    //         {/* <meshStandardMaterial color="#ff0000" /> */}
+    //     </mesh>
+    //   )
+        mesh = (
+            <Clone
+                object={obj}
+                dispose={null}
+                inject={material}
+            />
+        )
     }
 
     console.log('Model obj', src, obj);
@@ -41,12 +65,17 @@ export function Model({ src, modelRef, ...props }: ModelProps) {
     // console.log('Model obj', obj, simplerGeo);
     return (
         <group {...props}>
-            <Stage
+            {/* <Stage
                 contactShadow={{
                     blur: 1
-                }} shadows adjustCamera intensity={1} environment="city" preset="rembrandt"
+                }}
+                shadows
+                adjustCamera
+                intensity={1}
+                environment="city"
+                preset="rembrandt"
                 // controls={controlsRef}
-            >
+            > */}
             {/* <Center {...{} as any}> */}
                 <group ref={modelRef}>
                     {/* <Clone
@@ -68,10 +97,11 @@ export function Model({ src, modelRef, ...props }: ModelProps) {
                     >
                         <meshStandardMaterial color="#ff0000" />
                     </mesh> */}
-                    <primitive object={obj} />
+                    {/* <primitive object={obj} /> */}
+                    {mesh}
                 </group>
             {/* </Center> */}
-            </Stage>
+            {/* </Stage> */}
         </group>
     )
 }

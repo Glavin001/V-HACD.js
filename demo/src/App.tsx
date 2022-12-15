@@ -4,9 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stats, Center, Box } from '@react-three/drei'
 import { Physics, RigidBody, Debug } from "@react-three/rapier";
 // import quickHull from 'quickhull3d'
-import { Vector3 } from 'three'
-import { button, useControls } from 'leva'
-import { ConvexGeometry } from 'three-stdlib';
+import { Leva } from 'leva';
 
 import './App.css'
 // import reactLogo from './assets/react.svg'
@@ -16,6 +14,7 @@ import { VHACDPreview } from './VHACDPreview'
 function App() {
   return (
     <div className="canvas-container">
+      <Leva oneLineLabels />
       <Canvas>
         <Stats />
         <OrbitControls />
@@ -29,13 +28,13 @@ function App() {
         <Model src="/models/umbrella.obj" position={[2, 0, 0]} scale={[2, 2, 2]} /> */}
 
         <Suspense>
-          {/* <Physics> */}
+          <Physics>
             {/* <Debug /> */}
-            {/* <Floor /> */}
+            <Floor />
 
             <VHACDPreview />
 
-          {/* </Physics> */}
+          </Physics>
         </Suspense>
 
       </Canvas>

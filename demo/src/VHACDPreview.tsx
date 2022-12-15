@@ -1,18 +1,26 @@
 import React, { PropsWithChildren, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { ComputeResult, ConvexHull, VHACD } from 'v-hacd'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stats, Center, Box, Text, BBAnchor } from '@react-three/drei'
-import { Physics, RigidBody, Debug } from "@react-three/rapier";
+import { Physics, RigidBody, Debug, ConvexHullCollider, MeshCollider, Vector3Array } from "@react-three/rapier";
 // import quickHull from 'quickhull3d'
 import * as THREE from 'three'
-import { Vector3 } from 'three'
-import { button, useControls } from 'leva'
+import { BufferGeometry, Vector3 } from 'three'
+import { button, folder, useControls } from 'leva'
 import { ConvexGeometry, mergeVertices, OBJExporter } from 'three-stdlib';
+import {
+  fileOpen,
+  directoryOpen,
+  fileSave,
+  supported as fsSupported,
+} from 'browser-fs-access';
+
 import { MarketModels as marketModels } from './market-models';
 
 import './App.css'
 // import reactLogo from './assets/react.svg'
 import { Model } from './Model'
+import { Ball, Balls } from './Ball';
 
 const testModels = {
   // 'Cube': '/models/cube.obj',
@@ -50,23 +58,130 @@ const testModels = {
 export function VHACDPreview() {
   const modelRef = useRef();
   const [hulls, setHulls] = useState<ComputeResult | null>(null);
+  const [customModel, setCustomModel] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'computing'>('idle')
   const marketModelOptions = useMarketModels();
-  console.log('marketModelOptions', marketModelOptions);
   const modelOptions: Record<string, string> = useMemo(() => {
     return {
-      ...mapKeys(testModels, (k) => `${k} (V-HACD Tests)`),
+      ...mapKeys(testModels, (k) => `${k} (Tests)`),
       ...mapKeys(marketModelOptions, (k) => `${k} (market.pmnd.rs)`),
     }
   }, [marketModelOptions, testModels])
+  console.log('modelOptions', modelOptions);
 
   const hasHulls = !!(hulls && hulls.hulls.length > 0);
+  const isComputing = status === 'computing';
+
+  const mode = 'WASM';
+
+  const [{ model: _model }, setModelControls] = useControls(() => ({
+    model: {
+      label: 'Model',
+      value: testModels['Chair Wood'],
+      options: {
+        "Uploaded Model": "Custom Model",
+        ...modelOptions,
+      },
+    },
+    'Upload Model (GLB/GLTF/OBJ)': button(async () => {
+      if (fsSupported) {
+        console.log('Using the File System Access API.');
+      } else {
+        console.log('Using the fallback implementation.');
+      }
+      const blob = await fileOpen({
+        description: '3D Models',
+        mimeTypes: [
+          // GLTF
+          'model/gltf-binary', 'model/gltf+json',
+          // OBJ
+          'model/obj',
+        ],
+        extensions: [
+          // GLTF
+          '.glb', '.gltf',
+          // OBJ
+          '.obj',
+        ],
+      });
+      // Get extension from blob/file
+
+      const origFileName = blob?.name;
+      const fileExtension = origFileName ? origFileName.toLowerCase().split('.').pop() : '';
+
+      const url = URL.createObjectURL(blob);
+      const urlWithExtension = `${url}.${fileExtension}`
+      console.log('blob', blob, url, urlWithExtension);
+      setCustomModel(urlWithExtension);
+      setModelControls({
+        model: "Custom Model",
+      });
+    }),
+  }), [setCustomModel, modelOptions, customModel])
+
+  // const { model: _model } = useControls({
+  //   model: {
+  //     label: 'Model',
+  //     // value: '/models/cube.obj',
+  //     // value: '/models/mite.obj',
+  //     // value: '/meshes/mite.obj',
+  //     // value: testModels.Teapot,
+  //     // value: testModels.Mite,
+  //     value: testModels['Chair Wood'],
+  //     // onChange: () => {
+  //     //   setHulls(null);
+  //     // },
+  //     options: modelOptions,
+  //   },
+  // });
+  // const model = customModel || _model;
+  const model = _model === "Custom Model" ? customModel : _model;
+  console.log('model', { _model, model });
+  useControls({
+    'V-HACD Options': folder({
+    /*
+    mode: {
+      label: 'Mode',
+      value: 'WASM',
+      options: ['WASM', 'JS'],
+    },
+    */
+    maxConvexHulls: {
+      label: 'Max # Hulls',
+      value: 64,
+      step: 1,
+      min: 1,
+    },
+    resolution: {
+      label: 'Voxel Resolution',
+      value: 400000,
+      step: 1,
+      min: 1,
+    },
+    maxRecursionDepth: {
+      label: 'Max Recursion Depth',
+      value: 12,
+      step: 1,
+      min: 1,
+    },
+    minimumVolumePercentErrorAllowed: {
+      label: 'Min Volume % Error Allowed',
+      value: 1,
+      step: 0.001,
+      min: 0.001,
+    },
+    }),
+  })
 
   useControls({
-    Compute: button(async (get) => {
+    [isComputing ? "Computing" : "Compute"]: button(async (get) => {
+      let vhacd: VHACD | null = null;
       try {
         setStatus('computing');
-        const vhacd = new VHACD({
+
+        await alert("Starting soon, may take a while. Open the Console in Developer Tools to see the progress of the computation.");
+
+        vhacd = new VHACD({
           mode: mode as any,
         });
         const model = get('model');
@@ -90,7 +205,11 @@ export function VHACDPreview() {
         const { vertices, faces } = getVerticesAndFaces(modelRef.current);
 
         console.log('model', { vertices, faces, params });
+        console.log("=".repeat(80))
+        console.log("Starting Computing...")
         const res = await vhacd.compute({ vertices, faces, ...params });
+        console.log('Done Computing!');
+        console.log("=".repeat(80))
         console.log("Result:", res);
         setHulls(res);
         setStatus('idle')
@@ -98,84 +217,91 @@ export function VHACDPreview() {
         setStatus('idle');
         console.error(error);
         alert(error.toString()); 
+      } finally {
+        if (vhacd) {
+          // vhacd.release();
+        }
       }
+    }, {
+      disabled: isComputing,
     }),
-  });
+  }, [isComputing]);
 
   const { showOriginal, showHulls } = useControls({
+    'Visual Options': folder({
     showOriginal: {
-      label: 'Show Original',
+      label: 'Show Mesh',
       value: true,
     },
     showHulls: {
       label: 'Show Hulls',
       value: true,
     },
+    }, {
+      collapsed: true,
+    }),
   });
-  const { model } = useControls({
-    model: {
-      label: 'Model',
-      // value: '/models/cube.obj',
-      // value: '/models/mite.obj',
-      // value: '/meshes/mite.obj',
-      // value: testModels.Teapot,
-      value: testModels.Mite,
-      // onChange: () => {
-      //   setHulls(null);
-      // },
-      options: modelOptions,
-    },
-  });
-  const { mode } = useControls({
-    mode: {
-      label: 'Mode',
-      value: 'WASM',
-      options: ['WASM', 'JS'],
-    },
-    maxConvexHulls: {
-      label: 'Max # Hulls',
-      value: 64,
-      step: 1,
-      min: 1,
-    },
-    resolution: {
-      label: 'Resolution',
-      value: 400000,
-      step: 1,
-      min: 1,
-    },
-    maxRecursionDepth: {
-      label: 'Max Recursion Depth',
-      value: 12,
-      step: 1,
-      min: 1,
-    },
-    minimumVolumePercentErrorAllowed: {
-      label: 'Minimum Volume Percent Error Allowed',
-      value: 1,
-      step: 0.001,
-      min: 0.001,
-    },
-  })
 
-  useControls(() => ({
+  useControls(() => (hasHulls ? {
+    Export: folder({
     'Copy JSON of convex hulls': button(() => {
       const contents = JSON.stringify(hulls?.hulls, null, 2)
       navigator.clipboard.writeText(contents)
         .catch(console.error);
-    }, {
-      disabled: !hasHulls,
+    }),
     })
-  }), [hasHulls, hulls])
+  } : {} as any), [hasHulls, hulls])
+
+  const [{ offset, visualOffset }, setControls] = useControls(() => ({
+    'Visual Options': folder({
+    offset: {
+      label: 'Offset',
+      value: [0,0,0],
+    },
+    visualOffset: {
+      label: 'Visual Offset',
+      value: [0,0,0],
+    },
+    }, {
+      collapsed: true,
+    }),
+  }));
 
   useEffect(() => {
     setHulls(null);
   }, [model]);
 
-  const isComputing = status === 'computing';
+  // const { size = [1,1,1], center = [0,0,0] } = useMemo(() => {
+  useEffect(() => {
+    console.log('updated modelRef', modelRef);
+    if (!modelRef.current) {
+      return;
+    }
+    const box = new THREE.Box3().setFromObject(modelRef.current);
+    const center = box.getCenter(new THREE.Vector3()).toArray();
+    const size = box.getSize(new THREE.Vector3()).toArray();
+    console.log('center', center);
+    console.log('size', size);
+    setControls({
+      offset: center.map(v => -v) as THREE.Vector3Tuple,
+      visualOffset: center.map(v => -v) as THREE.Vector3Tuple,
+    });
+    // return { size, center };
+  }, [model, modelRef, setControls])
 
+  // const offset = useMemo(() => {
+  //   return center.map(v => -v);
+  // }, [center]);
+
+  if (!model) {
+    return null;
+  }
+
+  // console.log('(showOriginal && !hasHulls) || !showHulls', (showOriginal && !hasHulls) || !showHulls, { showOriginal, hasHulls, showHulls })
   return (
-    <group>
+    <group
+      position={[0, 0, 0]}
+    >
         {/* <RigidBody key={model}
             colliders={"hull"}
             position={[0, 0, 0]}
@@ -189,9 +315,22 @@ export function VHACDPreview() {
           <group
             // position={[2, 0, 0]}
             // ref={modelRef}
-            visible={showOriginal || !hasHulls}
+            // visible={showOriginal || !hasHulls}
+            // visible={(showOriginal && !hasHulls) || !showHulls}
+            // visible={(showOriginal && (!showHulls || !hasHulls)}
+            // visible={(showOriginal && !showHulls) || !hasHulls}
+            // visible={!hasHulls || (showOriginal && !showHulls)}
+            visible={
+              !hasHulls
+              // || (hasHulls && showOriginal)
+              // || (showOriginal && !showHulls)
+              // || (showOriginal && showHulls)
+            }
           >
-            <Model key={model} src={model} modelRef={modelRef} />
+            <group position={offset}>
+              <Model key={model} src={model} modelRef={modelRef} />
+            </group>
+            {/*
             <BBAnchor anchor={[0, 5, -5]}>
               <Text color="red" anchorX="center" anchorY="middle" fontSize={1}>
                 {hulls?.timing.total ? (
@@ -206,6 +345,7 @@ export function VHACDPreview() {
                 )}
               </Text>
             </BBAnchor>
+            */}
           </group>
         }
 
@@ -228,17 +368,24 @@ export function VHACDPreview() {
         <group
           // position={[-2, 0, 0]}
         >
-          <group
-            visible={showHulls}
-          >
           {hulls?.hulls && (
-            <Hulls
-              hulls={hulls.hulls}
-              opacity={showOriginal ? 0.8 : 1}
-              // opacity={debug ? 1 : 0.8}
-            />
+            <>
+              <Balls />
+              <Hulls
+                key={model}
+                hulls={hulls.hulls}
+                opacity={showOriginal ? 0.8 : 1}
+                visible={showHulls}
+                // opacity={debug ? 1 : 0.8}
+              >
+                {(showOriginal || !showHulls) && (
+                  <group position={visualOffset}>
+                    <Model key={model} src={model} />
+                  </group>
+                )}
+              </Hulls>
+            </>
           )}
-          </group>
         </group>
     </group>
   )
@@ -257,8 +404,8 @@ const RigidModel = ({ src, ...props }: any) => {
 }
 */
 
-function Hulls({ hulls = [], opacity = 1 }: { hulls: ConvexHull[]; opacity?: number; }) {
-  // console.log('gearCollisionPoints', gearCollisionPoints)
+function Hulls({ hulls = [], opacity = 1, offset, visible = true, children }: PropsWithChildren<{ hulls: ConvexHull[]; opacity?: number; offset?: Vector3Array; visible?: boolean; }>) {
+  console.log('Hulls', hulls)
 
   const convexGeometries = useMemo(() => {
     return (hulls || []).map((shapePoints: any) => {
@@ -275,11 +422,13 @@ function Hulls({ hulls = [], opacity = 1 }: { hulls: ConvexHull[]; opacity?: num
       // return mergeVertices(geometry)
       //if using import statement
       //geometry = BufferGeometryUtils.mergeVertices(geometry);
-      return geometry
+
+      // return geometry
+      return new BufferGeometry().copy(geometry);
     })
   }, [hulls])
 
-  // console.log('convexGeometries', convexGeometries)
+  console.log('convexGeometries', convexGeometries)
 
   // const hullShapes = useMemo(
   //   () =>
@@ -410,16 +559,31 @@ function Hulls({ hulls = [], opacity = 1 }: { hulls: ConvexHull[]; opacity?: num
     })
   }, [hulls.length])
 
+  const [key, setKey] = useState(1);
+  useControls({
+    "Refresh Render": button(() => {
+      setKey(v => v+1);
+    }),
+  })
+
   return (
     <group
       // ref={ref}
+      key={key}
     >
+    <RigidBody colliders={false} position={offset}>
+      <group visible={visible}>
       {convexGeometries.map((geo: any, index: number) => (
-        <mesh key={index} receiveShadow castShadow geometry={geo}>
-          {/* <meshNormalMaterial /> */}
-          <meshStandardMaterial color={colors[index]} transparent={opacity !== 1} opacity={opacity} />
-        </mesh>
+        <MeshCollider key={index} type="hull">
+          <mesh key={index} receiveShadow castShadow geometry={geo}>
+            {/* <meshNormalMaterial /> */}
+            <meshStandardMaterial color={colors[index]} transparent={opacity !== 1} opacity={opacity} />
+          </mesh>
+        </MeshCollider>
       ))}
+      </group>
+      {children}
+    </RigidBody>
     </group>
   )
 }
