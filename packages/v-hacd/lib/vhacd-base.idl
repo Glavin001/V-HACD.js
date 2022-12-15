@@ -1,0 +1,148 @@
+// interface VHACD {
+//   // [Const] IVHACD CreateVHACD();
+//   // [Const] IVHACD CreateVHACD_ASYNC();
+//   [Const] VHACDImpl CreateVHACD();
+//   [Const] VHACDImpl CreateVHACD_ASYNC();
+// };
+[Prefix="VHACD::"]
+interface IVHACD {
+  // boolean Compute(
+  //   double[] points,
+  //   long stridePoints,
+  //   long nPoints,
+  //   long[] triangles,
+  //   long strideTriangles,
+  //   long nTriangles,
+  //   [Const, Ref]Parameters params
+  // );
+
+  // boolean Compute(
+  //   [Const] double[] points,
+  //   [Const] unsigned long countPoints,
+  //   [Const] long[] triangles,
+  //   [Const] long countTriangles,
+  //   [Const, Ref] Parameters params
+  // );
+
+  // boolean Compute(
+  //   double[] points,
+  //   unsigned long countPoints,
+  //   long[] triangles,
+  //   long countTriangles,
+  //   [Const, Ref] Parameters params
+  // );
+
+  // boolean Compute(
+  //   double[] points,
+  //   unsigned short countPoints,
+  //   unsigned short[] triangles,
+  //   unsigned short countTriangles,
+  //   [Const, Ref] Parameters params
+  // );
+
+  boolean Compute(
+    double[] points,
+    unsigned long countPoints,
+    unsigned long[] triangles,
+    unsigned long countTriangles,
+    [Const, Ref] Parameters params
+  );
+
+  unsigned short GetNConvexHulls();
+  boolean GetConvexHull(unsigned short index, [Ref]ConvexHull ch);
+  void Cancel();
+  void Clean();
+  void Release();
+  boolean IsReady();
+};
+
+[Prefix="VHACD::"]
+interface VHACDImpl {
+  void VHACDImpl();
+};
+VHACDImpl implements IVHACD;
+
+[Prefix="VHACD::IVHACD::"]
+interface Parameters {
+  void Parameters();
+  attribute IUserCallback m_callback;
+  attribute IUserLogger m_logger;
+  attribute double m_minimumVolumePercentErrorAllowed;
+  attribute unsigned short m_maxConvexHulls;
+  attribute unsigned short m_resolution;
+  attribute unsigned short m_maxRecursionDepth;
+  attribute unsigned short m_maxNumVerticesPerCH;
+  attribute unsigned short m_minEdgeLength;
+  attribute boolean m_shrinkWrap;
+  attribute boolean m_findBestPlane;
+};
+
+[Prefix="VHACD::IVHACD::"]
+interface ConvexHull {
+  void ConvexHull();
+  readonly attribute double[] m_points;
+  readonly attribute long[] m_triangles;
+  readonly attribute unsigned short m_nPoints;
+  readonly attribute unsigned short m_nTriangles;
+};
+
+[Prefix="VHACD::IVHACD::"]
+interface IUserCallback {
+  // void IUserCallback();
+};
+
+[Prefix="VHACD::IVHACD::"]
+interface IUserLogger {
+  // void IUserLogger();
+};
+
+// [Prefix="VHACD::IVHACD::"]
+interface VHACDHelpers {
+  void VHACDHelpers();
+  [Const] IVHACD CreateVHACD();
+  // [Const] IVHACD CreateVHACD_ASYNC();
+};
+
+interface Logging {
+  void Logging();
+};
+// Logging implements IUserLogger;
+
+// [Prefix="VHACD::"]
+// interface VHACD {
+//   void VHACD();
+//   boolean Compute(double[] points, long stridePoints, long nPoints, long[] triangles, long strideTriangles, long nTriangles, [Const, Ref]Parameters params);
+//   unsigned short GetNConvexHulls();
+//   void GetConvexHull(unsigned short index, [Ref]ConvexHull ch);
+//   void Cancel();
+//   void Clean();
+//   void Release();
+// };
+
+// [Prefix="VHACD::IVHACD::"]
+// interface Parameters {
+//   void Parameters();
+//     attribute double m_concavity;
+//     attribute double m_alpha;
+//     attribute double m_beta;
+//     attribute double m_gamma;
+//     attribute double m_minVolumePerCH;
+//     attribute unsigned short m_resolution;
+//     attribute unsigned short m_maxNumVerticesPerCH;
+//     attribute long m_depth;
+//     attribute long m_planeDownsampling;
+//     attribute long m_convexhullDownsampling;
+//     attribute long m_pca;
+//     attribute long m_mode;
+//     attribute long m_convexhullApproximation;
+//     attribute long m_oclAcceleration;
+// };
+
+// [Prefix="VHACD::IVHACD::"]
+// interface ConvexHull {
+//   void ConvexHull();
+//   readonly attribute double[] m_points;
+//   readonly attribute long[] m_triangles;
+//   readonly attribute unsigned short m_nPoints;
+//   readonly attribute unsigned short m_nTriangles;
+// };

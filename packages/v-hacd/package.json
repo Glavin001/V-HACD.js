@@ -10,7 +10,10 @@
     "dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node -e \"import('./scripts/test.js')\"",
+    "build": "yarn patch:lib && yarn build:lib",
+    "build:lib": "cd lib/ && docker-compose up --build --exit-code-from lib lib",
+    "patch:lib": "cd lib/v-hacd && git apply ../patches/VHACD.patch || true"
   },
   "repository": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd",
   "keywords": [
@@ -22,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/Glavin001/V-HACD.js/issues"
   },
-  "homepage": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd#readme"
+  "homepage": "https://github.com/Glavin001/V-HACD.js/tree/master/packages/v-hacd#readme",
+  "devDependencies": {
+    "webidl2ts": "github:glavin001/webidl2ts"
+  }
 }

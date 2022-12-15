@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: ./src/lib/Dockerfile
+    volumes:
+      - .:/code
+    command: ./scripts/build-cli.sh
+  # lib:
+  #   build:
+  #     context: .
+  #     dockerfile: ./src/lib/Dockerfile
+  #   volumes:
+  #     - .:/code
+  #   command: ./scripts/build-lib.sh
+  lib:
+    build: .
+    volumes:
+      - .:/code
+    command: ./build.sh

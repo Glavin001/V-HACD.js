@@ -1,0 +1,13 @@
+diff --git a/include/VHACD.h b/include/VHACD.h
+index 5f9859a..66ed131 100644
+--- a/include/VHACD.h
++++ b/include/VHACD.h
+@@ -321,7 +321,7 @@ public:
+     */
+     virtual uint32_t findNearestConvexHull(const double pos[3],double &distanceToHull) = 0;
+ 
+-protected:
++// protected:
+     virtual ~IVHACD(void)
+     {
+     }

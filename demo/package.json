@@ -9,13 +9,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.25.3",
+    "@react-three/fiber": "^8.6.2",
+    "@react-three/rapier": "^0.6.6",
+    "browser-fs-access": "^0.31.1",
+    "leva": "^0.9.31",
+    "quickhull3d": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "three": "0.139.2",
+    "three-stdlib": "2.9.1",
     "v-hacd": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "@types/three": "^0.144.0",
     "@vitejs/plugin-react": "^2.0.1",
     "typescript": "^4.6.4",
     "vite": "^3.0.7"

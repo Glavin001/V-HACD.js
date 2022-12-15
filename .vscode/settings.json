@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.idl": "cpp"
+    },
+    "cmake.buildDirectory": "${workspaceFolder}/packages/v-hacd/builds",
+    "cmake.sourceDirectory": "${workspaceFolder}/packages/v-hacd/lib"
+}

@@ -1,0 +1,3 @@
+partial interface VHACDHelpers {
+  [Const] IVHACD CreateVHACD_ASYNC();
+};
